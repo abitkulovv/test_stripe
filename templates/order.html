@@ -1,0 +1,44 @@
+<!-- payments/templates/order.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order #{{ order.id }}</title>
+</head>
+<body>
+    <h1>Order #{{ order.id }}</h1>
+
+    <ul>
+        {% for item in order.items.all %}
+            <li>
+                {{ item.name }} — {{ item.display_price|floatformat:2 }} {{ item.currency|upper }}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <p><strong>Total:</strong> {{ order.display_total|floatformat:2 }} {{ order.items.first.currency|upper }}</p>
+
+    <button id="buy">Pay Order</button>
+
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        const stripe = Stripe("{{ stripe_key }}");
+
+        document.getElementById("buy").onclick = async () => {
+            try {
+                const res = await fetch("/buy-order/{{ order.id }}/");
+                const data = await res.json();
+
+                if (data.session_id) {
+                    stripe.redirectToCheckout({ sessionId: data.session_id });
+                } else if (data.error) {
+                    alert("Error: " + data.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Something went wrong. Check console.");
+            }
+        };
+    </script>
+</body>
+</html>

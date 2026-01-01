@@ -1,0 +1,16 @@
+<h1>{{ item.name }}</h1>
+<p>{{ item.description }}</p>
+<p>Price: {{ item.display_price }} {{ item.currency|upper }}</p>
+
+<button id="buy">Buy</button>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+const stripe = Stripe("{{ stripe_key }}");
+
+document.getElementById("buy").onclick = async () => {
+    const res = await fetch("/buy/{{ item.id }}/");
+    const data = await res.json();
+    stripe.redirectToCheckout({ sessionId: data.session_id });
+};
+</script>
