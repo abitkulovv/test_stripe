@@ -4,10 +4,12 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from .models import Item, Order
+import os
 
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
+render_url = os.getenv("RENDER_URL")
 
 def buy_item(request, id):
     item = get_object_or_404(Item, id=id)
@@ -26,8 +28,8 @@ def buy_item(request, id):
             "quantity": 1,
         }],
         mode="payment",
-        success_url="http://127.0.0.1:8000/success",
-        cancel_url="http://127.0.0.1:8000/cancel",
+        success_url=f"{render_url}/success",
+        cancel_url=f"{render_url}/cancel",
     )
 
     return JsonResponse({"session_id": session.id})
@@ -75,8 +77,8 @@ def buy_order(request, id):
         payment_method_types=["card"],
         line_items=line_items,
         mode="payment",
-        success_url="http://127.0.0.1:8000/success/",
-        cancel_url="http://127.0.0.1:8000/cancel/",
+        success_url=f"{render_url}/success/",
+        cancel_url=f"{render_url}/cancel/",
     )
 
     return JsonResponse({"session_id": session.id})
