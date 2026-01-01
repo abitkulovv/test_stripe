@@ -3,6 +3,7 @@ import stripe
 from django.conf import settings
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from rest_framework.decorators import api_view
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from .models import Item, Order
@@ -30,6 +31,7 @@ render_url = os.getenv("RENDER_URL")
         )
     }
 )
+@api_view(["GET"])
 def buy_item(request, id):
     item = get_object_or_404(Item, id=id)
 
@@ -86,6 +88,7 @@ def cancel_page(request):
         )
     }
 )
+@api_view(["GET"])
 def buy_order(request, id):
     order = get_object_or_404(Order, id=id)
     items = order.items.all()
