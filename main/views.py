@@ -1,6 +1,8 @@
 from django.shortcuts import render
 import stripe
 from django.conf import settings
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from .models import Item, Order
@@ -11,6 +13,23 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 render_url = os.getenv("RENDER_URL")
 
+
+@swagger_auto_schema(
+    method="get",
+    operation_summary="Buy item",
+    operation_description="Create Stripe Checkout Session for Item",
+    responses={
+        200: openapi.Response(
+            description="Stripe session id",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    "session_id": openapi.Schema(type=openapi.TYPE_STRING)
+                }
+            )
+        )
+    }
+)
 def buy_item(request, id):
     item = get_object_or_404(Item, id=id)
 
@@ -51,6 +70,22 @@ def cancel_page(request):
     return JsonResponse({"success": False})
 
 
+@swagger_auto_schema(
+    method="get",
+    operation_summary="Pay order",
+    operation_description="Create Stripe Checkout Session for Order",
+    responses={
+        200: openapi.Response(
+            description="Stripe session id",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    "session_id": openapi.Schema(type=openapi.TYPE_STRING)
+                }
+            )
+        )
+    }
+)
 def buy_order(request, id):
     order = get_object_or_404(Order, id=id)
     items = order.items.all()
